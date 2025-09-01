@@ -1,0 +1,40 @@
+---
+- name: Ensure Transporter directory exists
+  ansible.builtin.file:
+    path: /opt/transporter
+    state: directory
+    mode: '0755'
+
+- name: Download Transporter binary
+  get_url:
+    url: "https://github.com/compose/transporter/releases/download/v0.5.2/transporter-0.5.2-linux-amd64"
+    dest: "/usr/local/bin/transporter"
+    mode: '0755'
+
+- name: Create Transporter systemd service file (example)
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description=Transporter Service
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/local/bin/transporter run /opt/transporter/pipeline.json
+      Restart=on-failure
+      User=root
+      Group=root
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/transporter.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd and start Transporter
+  ansible.builtin.systemd:
+    name: transporter
+    daemon_reload: yes
+    state: started
+    enabled: yes

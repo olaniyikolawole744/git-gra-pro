@@ -1,0 +1,13 @@
+---
+- name: Install and Configure Monitoring Stack
+  hosts: server
+  become: true
+  roles:
+    - prometheus
+    - grafana
+
+- name: Install and Configure Transporter
+  hosts: server
+  become: true
+  roles:
+    - transporter

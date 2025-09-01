@@ -1,0 +1,12 @@
+---
+- name: Install Grafana
+  ansible.builtin.apt:
+    name: grafana
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Start Grafana service
+  ansible.builtin.systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
