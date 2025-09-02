@@ -1,0 +1,57 @@
+---
+- name: Install and start Nginx
+  hosts: ubuntu_server # Replace with the name of your host group from inventory
+  become: yes # Use sudo to run tasks with elevated privileges
+
+  tasks:
+    - name: Install Nginx package 
+      ansible.builtin.apt: # Or use 'yum' for RHEL/CentOS systems
+        name: nginx
+        state: latest
+        update_cache: yes # Update apt cache before installing
+
+    - name: Start and enable Nginx 
+      ansible.builtin.systemd: # Or 'service' for older init systems
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: List files in /var/www/html
+      ansible.builtin.command: ls -l /var/www/html
+      register: file_list
+
+    - name: Display files on the screen
+      debug:
+        msg: "{{ file_list.stdout_lines }}"
+
+    - name: Find all files in /var/www/html
+      ansible.builtin.find:
+        paths: /var/www/html
+        file_type: file
+      register: html_files
+
+    - name: Show list of files
+      debug:
+        var: html_files.files
+
+    - name: Check if Nginx default index file exists
+      stat:
+        path: /var/www/html/index.nginx-debian.html
+      register: index_file
+
+    - name: Ensure destination directory exists
+      ansible.builtin.file:
+        path: /var/www/html/ # The directory where the file will be saved
+        state: directory
+        mode: '0755' # Set appropriate permissions for the directory
+
+    - name: Host website on Nginx
+      ansible.builtin.get_url:
+        url: https://themewagon.com/themes/free-bootstrap-4-html5-restaurant-website-template-feane/ # The URL of the file to download
+        dest: /var/www//html/index.html # The destination path including filename
+        mode: '0644' # Set appropriate permissions for the downloaded file
+
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
