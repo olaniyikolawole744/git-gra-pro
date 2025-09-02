@@ -1,6 +1,6 @@
 ---
 - name: Install and start Nginx
-  hosts: ubuntu_server # Replace with the name of your host group from inventory
+  hosts: server # Replace with the name of your host group from inventory
   become: yes # Use sudo to run tasks with elevated privileges
 
   tasks:
